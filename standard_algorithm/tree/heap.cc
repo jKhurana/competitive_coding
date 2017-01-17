@@ -1,6 +1,5 @@
 #include<stdio.h>
 #include<iostream>
-#define max(a,b) ( (a) < (b) ? (b) : (a) )
 
 using namespace std;
 
@@ -12,40 +11,11 @@ int swap(int *a,int *b)
 	*b = c;
 	}
 
-void build_heap(int heap[],int n)
+void heapify(int heap[],int n,int i)
 {
-	int i;
-	if(n%2==0)
-	{
-		i = (n-1)/2 + 1;
-		}
-	else
-	{
-		i = (n-1)/2;
-		}
-	
-	for(int j=i;j>0;j--)
-	{
-		if(2*j+1 <=n)
-		{
-			int max1 = heap[2*j] > heap[2*j+1] ? 2*j : 2*j+1;
-			if(heap[max1] > heap[j])
-				swap(heap[max1],heap[j]);
-			}
-		else if(2*j<=n)
-		{
-			heap[j] = max(heap[j],heap[2*j]);
-			}
-		}
-	}
-
-int fetch(int heap[],int n)
-{
-	int item = heap[1];
-	heap[1] = heap[n];
-	n--;
-	int i = 1;
-	while(2*i<=n)
+	if(i>n || 2*i>n)
+		return;
+	while (2*i<=n)
 	{
 		if(2*i+1 <= n)
 		{
@@ -54,7 +24,7 @@ int fetch(int heap[],int n)
 				break;
 			else
 			{
-				swap(heap[i],heap[maxindex]);
+				swap(heap+i,heap+maxindex);
 				i = maxindex;
 				}
 			}
@@ -62,17 +32,40 @@ int fetch(int heap[],int n)
 		{
 			if(heap[i] < heap[2*i])
 			{
-				swap(heap[i],heap[2*i]);
+				swap(heap+i,heap+2*i);
 				i = 2*i;
 				}
+				else
+					break;
 			}
 		}
+
+	}
+
+void build_heap(int heap[],int n)
+{
+	int i;
+	i = n%2==0 ? (n-1)/2 + 1 : (n-1)/2;
+	for(int j=i;j>0;j--)
+	{
+			heapify(heap,n,j);
+		}
+	}
+
+int fetch(int heap[],int *n)
+{
+	if(*n<=0)
+		return -1;
+	int item = heap[1];
+	heap[1] = heap[*n];
+	(*n)--;
+	heapify(heap,*n,1);
 	return item;
 	}
 
 int main()
 {
-	int heap[100001];
+	int heap[100001],n=7;
 	heap[1] = 10;
 	heap[2] = 34;
 	heap[3] = 56;
@@ -80,18 +73,18 @@ int main()
 	heap[5] = 65;
 	heap[6] = 23;
 	heap[7] = 45;
-	int n = 7;
 	build_heap(heap,7);
 	for(int i=1;i<=n;i++)
 	{
 		printf("%d ",heap[i]);
 		}
 	printf("\n");
-	for(int i=1;i<=n;i++)
+	int item = fetch(heap,&n);
+	while(item!=-1)
 	{
-		printf("%d ",fetch(heap,n));
-		n--;
-		}
+		printf("%d ",item);
+		item = fetch(heap,&n);
+	}
 	return 0;
-	
+
 	}
